@@ -1,0 +1,1 @@
+# wiki-analyzer-statistic-collector-service
