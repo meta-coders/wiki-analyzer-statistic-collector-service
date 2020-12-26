@@ -5,7 +5,7 @@
   "main": "collector.ts",
   "scripts": {
     "test": "test",
-    "start": "node dist/collector.js",
+    "start": "tsc && node dist/collector.js",
     "build": "tsc",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "lint": "eslint \"{src,test}/**/*.ts\" --fix"
