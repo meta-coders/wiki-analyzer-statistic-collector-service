@@ -21,6 +21,8 @@
   },
   "homepage": "https://github.com/meta-coders/wiki-analyzer-statistic-collector-service#readme",
   "dependencies": {
+    "dotenv": "^8.2.0",
+    "pg": "^8.5.1",
     "rxjs": "^6.6.3",
     "ws": "^7.4.1"
   },
