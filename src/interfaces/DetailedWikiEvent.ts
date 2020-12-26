@@ -1,39 +1,31 @@
 import {
-    WikiCategorizeEvent,
-    WikiExternalEvent,
-    WikiLogEvent,
-    WikiNewEvent,
-    WikiEditEvent,
+  WikiCategorizeEvent,
+  WikiExternalEvent,
+  WikiLogEvent,
+  WikiNewEvent,
+  WikiEditEvent,
 } from './WikiEvent';
 
-// export interface DetailedWikiNewEvent extends WikiNewEvent {
-//   revision: {
-//     new: number;
-//     content: string;
-//   };
-// }
-
-export interface DetailedWikiEditEvent extends WikiEditEvent {
-    revision: {
-        new: number;
-        old: number;
-        missing: boolean;
-        diff?: string;
-    };
+export enum ContributionType {
+  TYPO_EDIT = 'typo_edittings',
+  CONTENT_ADDITION = 'content_addition',
 }
 
-// export interface DetailedWikiExternalEvent extends WikiExternalEvent {
-//   revision: {
-//     new: number;
-//     content: string;
-//   };
-// }
+export interface DetailedWikiEditEvent extends WikiEditEvent {
+  revision: {
+    new: number;
+    old: number;
+    missing: boolean;
+    diff?: string;
+    contributionType?: ContributionType;
+  };
+}
 
 type DetailedWikiEvent =
-    | WikiLogEvent
-    | WikiCategorizeEvent
-    | WikiNewEvent
-    | DetailedWikiEditEvent
-    | WikiExternalEvent;
+  | WikiLogEvent
+  | WikiCategorizeEvent
+  | WikiNewEvent
+  | DetailedWikiEditEvent
+  | WikiExternalEvent;
 
 export default DetailedWikiEvent;

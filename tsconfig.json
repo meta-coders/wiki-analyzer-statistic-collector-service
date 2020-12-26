@@ -3,7 +3,11 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "noUnusedLocals": false,
-    "outDir": "dist"
+    "outDir": "dist",
+    "typeRoots": [
+      "./node_modules/@types",
+      "./types"
+    ]
   },
   "include": ["src/**/*.ts"]
 }
