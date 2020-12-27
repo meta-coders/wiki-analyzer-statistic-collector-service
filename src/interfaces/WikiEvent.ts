@@ -86,7 +86,7 @@ export interface WikiNewEvent extends WikiBaseEvent {
 
 export interface WikiEditEvent extends WikiBaseEvent {
   id: number;
-  type: WikiEventType.EDIT;
+  type: WikiEventType;
   minor: boolean;
   patrolled?: boolean;
   length: {

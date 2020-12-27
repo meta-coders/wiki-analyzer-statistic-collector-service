@@ -21,6 +21,7 @@ export interface DetailedRevision {
 
 export interface DetailedWikiEditEvent extends WikiEditEvent {
   revision: DetailedRevision;
+  userId?: string;
 }
 
 type DetailedWikiEvent =

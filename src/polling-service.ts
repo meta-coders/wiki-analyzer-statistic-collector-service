@@ -1,10 +1,11 @@
 import WebSocket from 'websocket';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import {defer, Observable} from 'rxjs';
+import {concatMap, filter, map} from 'rxjs/operators';
 import { webSocket } from 'rxjs/webSocket';
 import { getContributionType } from './utils/contribution-type';
-import DetailedWikiEvent from './interfaces/DetailedWikiEvent';
+import DetailedWikiEvent, {DetailedWikiEditEvent} from './interfaces/DetailedWikiEvent';
 import { WikiEventType } from './interfaces/WikiEvent';
+import {insertUserId} from "./DBStorage";
 
 export interface ConnectOptions {
   fromDate: Date;
@@ -24,7 +25,7 @@ export const connect = (
 
   return subject.pipe(
     map(
-      (message: DetailedWikiEvent | string): DetailedWikiEvent => {
+      (message: DetailedWikiEvent | string): DetailedWikiEditEvent => {
         const event =
           typeof message === 'string'
             ? (JSON.parse(message) as DetailedWikiEvent)
@@ -32,8 +33,15 @@ export const connect = (
         if (event.type === WikiEventType.EDIT) {
           event.revision.contributionType = getContributionType(event.revision);
         }
-        return event;
+        return event as DetailedWikiEditEvent;
       },
     ),
+    filter((event: DetailedWikiEditEvent):boolean => event.type !== WikiEventType.LOG),
+    concatMap((value: DetailedWikiEditEvent) => {
+        return defer(
+            () => insertUserId(value)
+        )
+    })
+
   );
 };
