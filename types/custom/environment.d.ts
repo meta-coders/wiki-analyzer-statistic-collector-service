@@ -4,5 +4,6 @@ declare namespace NodeJS {
     PGPORT: string;
     PGUSER: string;
     PGPASSWORD: string;
+    RECENT_CHANGES_API_URL: string;
   }
 }
