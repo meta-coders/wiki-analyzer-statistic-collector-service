@@ -1,25 +1,34 @@
 import Websocket, { MessageEvent } from 'ws';
 import { fromEvent, Observable } from 'rxjs';
-import { map, pluck } from 'rxjs/operators';
+import { map, pluck, mergeMap } from 'rxjs/operators';
 import { getContributionType } from './utils/contribution-type';
 import DetailedWikiEvent from './interfaces/DetailedWikiEvent';
+import { fromPromise } from 'rxjs/internal-compatibility';
 
 export interface ConnectOptions {
   fromDate: Date;
 }
 
-export const connect = (
+const connectToRecentChangesAPI = (
   options: ConnectOptions,
-): Observable<DetailedWikiEvent> => {
-  const socket = new Websocket(process.env.RECENT_CHANGES_API_URL).on(
-    'open',
-    () => {
-      socket.send(options.fromDate.toISOString());
-      console.log('Connected to Recent Changes Service');
-    },
+): Observable<Websocket> =>
+  fromPromise(
+    new Promise((resolve, reject) => {
+      const socket = new Websocket(process.env.RECENT_CHANGES_API_URL)
+        .on('open', () => {
+          socket.send(options.fromDate.toISOString());
+          console.log('Connected to Recent Changes Service');
+          resolve(socket);
+        })
+        .on('error', reject);
+    }),
   );
 
-  return fromEvent<MessageEvent>(socket, 'message').pipe(
+export const connect = (
+  options: ConnectOptions,
+): Observable<DetailedWikiEvent> =>
+  connectToRecentChangesAPI(options).pipe(
+    mergeMap((socket) => fromEvent<MessageEvent>(socket, 'message')),
     pluck('data'),
     map(
       (message: Websocket.Data): DetailedWikiEvent => {
@@ -31,4 +40,3 @@ export const connect = (
       },
     ),
   );
-};
