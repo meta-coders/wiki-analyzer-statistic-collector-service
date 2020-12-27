@@ -11,14 +11,16 @@ export enum ContributionType {
   CONTENT_ADDITION = 'content_addition',
 }
 
+export interface DetailedRevision {
+  new: number;
+  old: number;
+  missing: boolean;
+  diff?: string;
+  contributionType?: ContributionType;
+}
+
 export interface DetailedWikiEditEvent extends WikiEditEvent {
-  revision: {
-    new: number;
-    old: number;
-    missing: boolean;
-    diff?: string;
-    contributionType?: ContributionType;
-  };
+  revision: DetailedRevision;
 }
 
 type DetailedWikiEvent =

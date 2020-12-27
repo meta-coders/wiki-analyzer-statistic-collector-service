@@ -1,42 +1,39 @@
-import Websocket, { MessageEvent } from 'ws';
-import { fromEvent, Observable } from 'rxjs';
-import { map, pluck, mergeMap } from 'rxjs/operators';
+import WebSocket from 'websocket';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { webSocket } from 'rxjs/webSocket';
 import { getContributionType } from './utils/contribution-type';
 import DetailedWikiEvent from './interfaces/DetailedWikiEvent';
-import { fromPromise } from 'rxjs/internal-compatibility';
+import { WikiEventType } from './interfaces/WikiEvent';
 
 export interface ConnectOptions {
   fromDate: Date;
 }
 
-const connectToRecentChangesAPI = (
-  options: ConnectOptions,
-): Observable<Websocket> =>
-  fromPromise(
-    new Promise((resolve, reject) => {
-      const socket = new Websocket(process.env.RECENT_CHANGES_API_URL)
-        .on('open', () => {
-          socket.send(options.fromDate.toISOString());
-          console.log('Connected to Recent Changes Service');
-          resolve(socket);
-        })
-        .on('error', reject);
-    }),
-  );
-
 export const connect = (
   options: ConnectOptions,
-): Observable<DetailedWikiEvent> =>
-  connectToRecentChangesAPI(options).pipe(
-    mergeMap((socket) => fromEvent<MessageEvent>(socket, 'message')),
-    pluck('data'),
+): Observable<DetailedWikiEvent> => {
+  const subject = webSocket<DetailedWikiEvent | string>({
+    url: process.env.RECENT_CHANGES_API_URL,
+    WebSocketCtor: WebSocket.w3cwebsocket,
+    serializer: (value) =>
+      typeof value === 'object' ? JSON.stringify(value) : value,
+  });
+
+  subject.next(options.fromDate.toISOString());
+
+  return subject.pipe(
     map(
-      (message: Websocket.Data): DetailedWikiEvent => {
-        const event = JSON.parse(message.toString()) as DetailedWikiEvent;
-        if (event.type === 'edit' && !event.revision.missing) {
-          event.revision.contributionType = getContributionType(event);
+      (message: DetailedWikiEvent | string): DetailedWikiEvent => {
+        const event =
+          typeof message === 'string'
+            ? (JSON.parse(message) as DetailedWikiEvent)
+            : message;
+        if (event.type === WikiEventType.EDIT) {
+          event.revision.contributionType = getContributionType(event.revision);
         }
         return event;
       },
     ),
   );
+};

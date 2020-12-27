@@ -1,7 +1,7 @@
 import DOMParser, { Node } from 'dom-parser';
 import {
-  DetailedWikiEditEvent,
   ContributionType,
+  DetailedRevision,
 } from '../interfaces/DetailedWikiEvent';
 
 interface WikiDiff {
@@ -63,12 +63,12 @@ const getChanges = (diff = ''): WikiDiff => {
 };
 
 export const getContributionType = (
-  event: DetailedWikiEditEvent,
+  revision: DetailedRevision,
 ): ContributionType => {
-  if (event.revision.missing) {
+  if (revision.missing) {
     return ContributionType.CONTENT_ADDITION;
   }
-  const changes = getChanges(event.revision.diff);
+  const changes = getChanges(revision.diff);
   return changes.addedInlines.length || changes.deletedInlines.length
     ? ContributionType.TYPO_EDIT
     : ContributionType.CONTENT_ADDITION;
