@@ -1,4 +1,8 @@
+import WS from 'jest-websocket-mock';
+
 import * as pollingService from '../src/polling-service';
+
+const STUB_RECENT_CHANGES_API_URL = 'ws://localhost:3000';
 
 describe('Polling service', () => {
   const INITIAL_ENV = process.env;
@@ -12,7 +16,10 @@ describe('Polling service', () => {
     /**
      * copy env to prevent overriding initial values
      */
-    process.env = { ...INITIAL_ENV };
+    process.env = {
+      ...INITIAL_ENV,
+      RECENT_CHANGES_API_URL: STUB_RECENT_CHANGES_API_URL,
+    };
   });
 
   afterAll(() => {
@@ -23,17 +30,10 @@ describe('Polling service', () => {
   });
 
   test('must throw if server is not running', (done) => {
-    const address = '127.0.0.1:3000';
-
-    process.env.RECENT_CHANGES_API_URL = `ws://${address}`;
-
     pollingService.connect({ fromDate: new Date() }).subscribe({
       next: jest.fn(),
       error: (err) => {
-        expect(err).toHaveProperty(
-          'message',
-          `connect ECONNREFUSED ${address}`,
-        );
+        expect(err).toHaveProperty('type', 'error');
         done();
       },
       complete: () => {
@@ -41,5 +41,15 @@ describe('Polling service', () => {
         done();
       },
     });
+  });
+
+  test('must send fromDate to server when connected', async () => {
+    const server = new WS(process.env.RECENT_CHANGES_API_URL);
+    const fromDate = new Date();
+    pollingService.connect({ fromDate }).subscribe();
+
+    await server.connected;
+    await expect(server).toReceiveMessage(fromDate.toISOString());
+    server.close();
   });
 });
