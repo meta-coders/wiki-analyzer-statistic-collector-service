@@ -9,25 +9,26 @@ export interface ConnectOptions {
 }
 
 export const connect = (
-  options: ConnectOptions
+  options: ConnectOptions,
 ): Observable<DetailedWikiEvent> => {
-  const socket = new Websocket(process.env.RECENT_CHANGES_API_URL)
-    .on('open', () => {
+  const socket = new Websocket(process.env.RECENT_CHANGES_API_URL).on(
+    'open',
+    () => {
       socket.send(options.fromDate.toISOString());
       console.log('Connected to Recent Changes Service');
-    });
+    },
+  );
 
-  return fromEvent<MessageEvent>(socket, 'message')
-    .pipe(
-      pluck('data'),
-      map(
-        (message: Websocket.Data): DetailedWikiEvent => {
-          const event = JSON.parse(message.toString()) as DetailedWikiEvent;
-          if (event.type === 'edit' && !event.revision.missing) {
-            event.revision.contributionType = getContributionType(event);
-          }
-          return event;
-        },
-      ),
-    );
+  return fromEvent<MessageEvent>(socket, 'message').pipe(
+    pluck('data'),
+    map(
+      (message: Websocket.Data): DetailedWikiEvent => {
+        const event = JSON.parse(message.toString()) as DetailedWikiEvent;
+        if (event.type === 'edit' && !event.revision.missing) {
+          event.revision.contributionType = getContributionType(event);
+        }
+        return event;
+      },
+    ),
+  );
 };
