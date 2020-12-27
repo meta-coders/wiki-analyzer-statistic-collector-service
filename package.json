@@ -4,8 +4,8 @@
   "description": "",
   "main": "collector.ts",
   "scripts": {
-    "test": "test",
-    "start": "tsc && node dist/collector.js",
+    "test": "jest",
+    "start": "tsc && node dist/src/collector.js",
     "build": "tsc",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "lint": "eslint \"{src,test}/**/*.ts\" --fix"
@@ -21,15 +21,15 @@
   },
   "homepage": "https://github.com/meta-coders/wiki-analyzer-statistic-collector-service#readme",
   "dependencies": {
-    "@types/pg": "^7.14.7",
     "dom-parser": "^0.1.6",
-    "dotenv": "^8.2.0",
     "pg": "^8.5.1",
     "rxjs": "^6.6.3",
     "ws": "^7.4.1"
   },
   "devDependencies": {
+    "@types/jest": "^26.0.19",
     "@types/node": "^14.0.18",
+    "@types/pg": "^7.14.7",
     "@types/tap": "^14.10.0",
     "@types/ws": "^7.4.0",
     "@typescript-eslint/eslint-plugin": "^4.11.0",
@@ -38,8 +38,10 @@
     "eslint-config-prettier": "^7.1.0",
     "eslint-plugin-import": "^2.22.1",
     "fastify-tsconfig": "^1.0.0",
+    "jest": "^26.6.3",
     "prettier": "^2.2.1",
     "tap": "^14.0.0",
+    "ts-jest": "^26.4.4",
     "typescript": "^4.0.2"
   }
 }

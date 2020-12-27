@@ -9,5 +9,5 @@
       "./types"
     ]
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "jest.config.ts"]
 }
