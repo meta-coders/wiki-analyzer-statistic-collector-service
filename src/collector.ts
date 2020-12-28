@@ -1,5 +1,9 @@
 import * as pollingService from './polling-service';
+import {getLastTimeStamp} from "./DBStorage";
 
-pollingService
-  .connect({ fromDate: new Date() })
-  .subscribe(console.log, console.error);
+getLastTimeStamp().then(res =>
+    pollingService
+        .connect({ fromDate: res })
+        .subscribe(console.log, console.error)
+);
+

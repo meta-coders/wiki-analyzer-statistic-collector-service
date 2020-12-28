@@ -11,7 +11,15 @@ client
   .then(() => console.log('Connected to DB'))
   .catch((err: Error) => console.error('Connection DB error', err.stack));
 
-export default client;
+const getLastTimeStamp = async  () => {
+  const lastContributionRes = await client.query('SELECT * FROM contributions ORDER BY timestamp DESC LIMIT 1');
+  const timestamp: Date = lastContributionRes.rows.length > 0 ? new Date(lastContributionRes.rows[0].timestamp) : new Date();
+  if (Date.now() as any - (timestamp as any) > 1000*60*60*24*14){
+    return new Date(Date.now() as any - 1000*60*60*24*14)
+  } else {
+    return timestamp;
+  }
+};
 
 const insertUserId = async (
   contribution: DetailedWikiEditEvent,
@@ -46,7 +54,7 @@ const insertContribution = async (
   const valuesContr = [
     [
       new Date(contribution.timestamp * 1000).toISOString(),
-      contribution.type,
+      contribution.title,
       contribution.userId,
       contribution.meta.id + contribution.meta.domain,
       contribution.revision ? contribution.revision.contributionType : 'other',
@@ -68,4 +76,4 @@ const insertContribution = async (
   }
 };
 
-export { insertUserId, insertContribution };
+export { insertUserId, insertContribution, getLastTimeStamp };
