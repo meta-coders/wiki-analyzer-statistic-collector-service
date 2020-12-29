@@ -4,6 +4,12 @@ import DetailedWikiEvent, {
   DetailedWikiEditEvent,
 } from './interfaces/DetailedWikiEvent';
 
+const SECOND = 1000;
+const MINUTE = 60 * SECOND;
+const HOUR = 60 * MINUTE;
+const DAY = 24 * HOUR;
+const WEEK = 2 * DAY;
+
 const client = new Client();
 
 client
@@ -19,8 +25,8 @@ const getLastTimeStamp = async () => {
     lastContributionRes.rows.length > 0
       ? new Date(lastContributionRes.rows[0].timestamp)
       : new Date();
-  if ((Date.now() as any) - (timestamp as any) > 1000 * 60 * 60 * 24 * 14) {
-    return new Date((Date.now() as any) - 1000 * 60 * 60 * 24 * 14);
+  if ((Date.now() as any) - (timestamp as any) > 2 * WEEK) {
+    return new Date((Date.now() as any) - 2 * WEEK);
   } else {
     return timestamp;
   }
@@ -32,8 +38,6 @@ const insertUserId = async (
   const userQueryRes = await client.query(
     "SELECT * FROM users WHERE username = '" + contribution.user + "' LIMIT 1",
   );
-
-  console.log(userQueryRes);
 
   if (userQueryRes.rowCount === 0) {
     const userInsertRes = await client.query({
