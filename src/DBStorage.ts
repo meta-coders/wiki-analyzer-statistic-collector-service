@@ -80,7 +80,9 @@ const insertContribution = async (
     );
     return res;
   } catch (e) {
-    // console.log(e);
+    if (process.env.LOG_LEVEL === 'debug'){
+      console.log(e);
+    }
     return 'Duplicate';
   }
 };
