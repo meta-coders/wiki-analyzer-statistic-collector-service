@@ -4,5 +4,11 @@ import { getLastTimeStamp } from './DBStorage';
 getLastTimeStamp().then((res) =>
   pollingService
     .connect({ fromDate: res })
-    .subscribe(console.log, console.error),
+    .subscribe(
+        value => {
+            if(process.env.LOG_LEVEL === 'debug')
+                console.log(value)
+        },
+        console.error
+    ),
 );

@@ -80,7 +80,7 @@ const insertContribution = async (
     );
     return res;
   } catch (e) {
-    console.log(e);
+    // console.log(e);
     return 'Duplicate';
   }
 };

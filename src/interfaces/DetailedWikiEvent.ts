@@ -7,7 +7,7 @@ import {
 } from './WikiEvent';
 
 export enum ContributionType {
-  TYPO_EDIT = 'typo_edittings',
+  TYPO_EDIT = 'typo_editting',
   CONTENT_ADDITION = 'content_addition',
 }
 
