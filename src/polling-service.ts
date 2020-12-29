@@ -8,6 +8,11 @@ import DetailedWikiEvent, {
 } from './interfaces/DetailedWikiEvent';
 import { WikiEventType } from './interfaces/WikiEvent';
 import { insertUserId } from './DBStorage';
+import retryBackoff from "./utils/retry-backoff";
+
+const MAX_RETRY_ATTEMPTS = 10;
+const RETRY_DELAY = 1000;
+
 
 export interface ConnectOptions {
   fromDate: Date;
@@ -26,7 +31,8 @@ export const connect = (
   subject.next(options.fromDate.toISOString());
 
   return subject.pipe(
-    map(
+      retryBackoff(MAX_RETRY_ATTEMPTS, RETRY_DELAY, 'PollingService'),
+      map(
       (message: DetailedWikiEvent | string): DetailedWikiEditEvent => {
         const event =
           typeof message === 'string'
