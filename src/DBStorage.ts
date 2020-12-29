@@ -11,11 +11,16 @@ client
   .then(() => console.log('Connected to DB'))
   .catch((err: Error) => console.error('Connection DB error', err.stack));
 
-const getLastTimeStamp = async  () => {
-  const lastContributionRes = await client.query('SELECT * FROM contributions ORDER BY timestamp DESC LIMIT 1');
-  const timestamp: Date = lastContributionRes.rows.length > 0 ? new Date(lastContributionRes.rows[0].timestamp) : new Date();
-  if (Date.now() as any - (timestamp as any) > 1000*60*60*24*14){
-    return new Date(Date.now() as any - 1000*60*60*24*14)
+const getLastTimeStamp = async () => {
+  const lastContributionRes = await client.query(
+    'SELECT * FROM contributions ORDER BY timestamp DESC LIMIT 1',
+  );
+  const timestamp: Date =
+    lastContributionRes.rows.length > 0
+      ? new Date(lastContributionRes.rows[0].timestamp)
+      : new Date();
+  if ((Date.now() as any) - (timestamp as any) > 1000 * 60 * 60 * 24 * 14) {
+    return new Date((Date.now() as any) - 1000 * 60 * 60 * 24 * 14);
   } else {
     return timestamp;
   }
@@ -72,7 +77,7 @@ const insertContribution = async (
     return res;
   } catch (e) {
     console.log(e);
-    return 'Duplicate'
+    return 'Duplicate';
   }
 };
 

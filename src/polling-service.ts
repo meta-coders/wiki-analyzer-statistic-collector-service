@@ -1,11 +1,13 @@
 import WebSocket from 'websocket';
-import {defer, Observable} from 'rxjs';
-import {concatMap, filter, map} from 'rxjs/operators';
+import { defer, Observable } from 'rxjs';
+import { concatMap, filter, map } from 'rxjs/operators';
 import { webSocket } from 'rxjs/webSocket';
 import { getContributionType } from './utils/contribution-type';
-import DetailedWikiEvent, {DetailedWikiEditEvent} from './interfaces/DetailedWikiEvent';
+import DetailedWikiEvent, {
+  DetailedWikiEditEvent,
+} from './interfaces/DetailedWikiEvent';
 import { WikiEventType } from './interfaces/WikiEvent';
-import {insertUserId} from "./DBStorage";
+import { insertUserId } from './DBStorage';
 
 export interface ConnectOptions {
   fromDate: Date;
@@ -36,12 +38,12 @@ export const connect = (
         return event as DetailedWikiEditEvent;
       },
     ),
-    filter((event: DetailedWikiEditEvent):boolean => event.type !== WikiEventType.LOG),
+    filter(
+      (event: DetailedWikiEditEvent): boolean =>
+        event.type !== WikiEventType.LOG,
+    ),
     concatMap((value: DetailedWikiEditEvent) => {
-        return defer(
-            () => insertUserId(value)
-        )
-    })
-
+      return defer(() => insertUserId(value));
+    }),
   );
 };
