@@ -35,24 +35,29 @@ const getLastTimeStamp = async () => {
 const insertUserId = async (
   contribution: DetailedWikiEditEvent,
 ): Promise<DetailedWikiEditEvent> => {
-  const userQueryRes = await client.query(
-    "SELECT * FROM users WHERE username = '" + contribution.user + "' LIMIT 1",
-  );
+  try {
+    const userQueryRes = await client.query(
+      "SELECT * FROM users WHERE username = $1 LIMIT 1",
+      [contribution.user],
+    );
 
-  if (userQueryRes.rowCount === 0) {
-    const userInsertRes = await client.query({
-      text: 'INSERT INTO users (username) VALUES ($1::text) RETURNING user_id',
-      values: [contribution.user],
-      rowMode: 'array',
-    });
-    contribution.userId = userInsertRes.rows[0][0];
-    // return contribution;
-  } else if (userQueryRes.rowCount > 0) {
-    contribution.userId = userQueryRes.rows[0].user_id;
-    // return contribution;
+    if (userQueryRes.rowCount === 0) {
+      const userInsertRes = await client.query({
+        text: 'INSERT INTO users (username) VALUES ($1::text) RETURNING user_id',
+        values: [contribution.user],
+        rowMode: 'array',
+      });
+      contribution.userId = userInsertRes.rows[0][0];
+    } else if (userQueryRes.rowCount > 0) {
+      contribution.userId = userQueryRes.rows[0].user_id;
+    }
+
+    await insertContribution(contribution);
+  } catch (error) {
+    if (process.env.LOG_LEVEL === 'debug'){
+      console.log(error);
+    }
   }
-
-  await insertContribution(contribution);
 
   return contribution;
 };
@@ -66,7 +71,9 @@ const insertContribution = async (
       contribution.title,
       contribution.userId,
       contribution.meta.id + contribution.meta.domain,
-      contribution.revision ? contribution.revision.contributionType : 'other',
+      contribution.revision && contribution.revision.contributionType
+        ? contribution.revision.contributionType
+        : 'other',
     ],
   ];
 

@@ -1,6 +1,6 @@
 import WebSocket from 'websocket';
-import { defer, Observable } from 'rxjs';
-import { concatMap, filter, map } from 'rxjs/operators';
+import {defer, MonoTypeOperatorFunction, Observable} from 'rxjs';
+import { concatMap, filter, map, tap } from 'rxjs/operators';
 import { webSocket } from 'rxjs/webSocket';
 import { getContributionType } from './utils/contribution-type';
 import DetailedWikiEvent, {
@@ -28,11 +28,17 @@ export const connect = (
       typeof value === 'object' ? JSON.stringify(value) : value,
   });
 
-  subject.next(options.fromDate.toISOString());
-
   return subject.pipe(
-      retryBackoff(MAX_RETRY_ATTEMPTS, RETRY_DELAY, 'PollingService'),
-      map(
+    retryBackoff(
+      MAX_RETRY_ATTEMPTS,
+      RETRY_DELAY,
+      'PollingService',
+      () => {
+        subject.next(options.fromDate.toISOString());
+        console.log('Connected to polling service');
+      }
+    ),
+    map(
       (message: DetailedWikiEvent | string): DetailedWikiEditEvent => {
         const event =
           typeof message === 'string'
